@@ -38,7 +38,7 @@ def calculate_exponential_distance(image, radius, alpha=1):
     return result
 
 if __name__ == '__main__':
-    images_path = sorted(glob.glob("/users2/local/h22elhaf/Faster_RCNN_for_DOTA/val/Prob_images/images/*.png"))
+    images_path = sorted(glob.glob("/users2/local/h22elhaf/Faster_RCNN_for_DOTA/train/Prob_images/images/*.png")) # change this with your images path
     print('all_images:', len(images_path))
     for item in images_path:
         print('processing item:', item)
@@ -71,58 +71,11 @@ if __name__ == '__main__':
         
         for label, img in CLASSES.items():
             
-            save_link = '/users2/local/h22elhaf/Faster_RCNN_for_DOTA/val/Prob_images_exp/'+ img_name + '_' + label + img_suffix
+            save_link = '/users2/local/h22elhaf/Faster_RCNN_for_DOTA/train/Prob_images_exp/'+ img_name + '_' + label + img_suffix
             img = cv.resize(img, (416,416))
             if img.max() != 0:
                 mg = calculate_exponential_distance(img, 5, 1)
                 mg = mg * 255  # Divide by 255 afterwards
-                # mg = NormalizeData(mg)
                 cv.imwrite(save_link, mg)
             else:
                 cv.imwrite(save_link, img)
-
-
-
-
-
-
-
-
-
-# # This is the code that works !!!
-# import numpy as np
-# import matplotlib.pyplot as plt
-
-# def calculate_exponential_distance(image, radius, alpha=1):
-#     height, width = image.shape
-#     result = np.zeros_like(image, dtype=np.float32)
-
-#     for i in range(height):
-#         for j in range(width):
-#             # if image[i, j] == 0:
-#             #     continue
-
-#             distance_sum_m = 0
-#             distance_sum_r = 0
-
-#             for x in range(height):
-#                 for y in range(width):
-#                     if image[x, y] != 0:
-#                         d_rp = np.sqrt((i - x) ** 2 + (j - y) ** 2)
-#                         distance_sum_m += np.exp(-alpha * d_rp)
-#                         if abs(x - i) <= radius and abs(y - j) <= radius:
-#                             distance_sum_r += np.exp(-alpha * d_rp)
-
-#             result[i, j] = distance_sum_r / distance_sum_m
-            
-#             # if distance_sum_r != 0:
-#                 # result[i, j] = distance_sum_m / distance_sum_r
-#             # else:
-#             #     result[i, j] = 0
-
-#     return result
-
-
-# test = np.array([[255,0,0,0,0,0],[255,0,0,0,0,0], [0,255,0,0,0,0], [0,0,255,255,255,0],[0,0,0,0,0,255],[0,0,0,0,0,255]])
-# print(test)
-# plt.imshow(calculate_exponential_distance(test, 1,alpha=1))
