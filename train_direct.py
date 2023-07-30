@@ -2,11 +2,10 @@ from config import (
     DEVICE, NUM_CLASSES, NUM_EPOCHS, OUT_DIR,
     VISUALIZE_TRANSFORMED_IMAGES, NUM_WORKERS,model_version, LR
 )
-from model_fusion import create_model
-# from model_fusion_feature_map import create_model
+from model_direct import create_model
 from custom_utils import Averager, SaveBestModel, save_model, save_loss_plot
 from tqdm.auto import tqdm
-from datasetsV2_fusion_exp import (
+from datasets_direct import (
     create_train_dataset, create_valid_dataset, 
     create_train_loader, create_valid_loader
 )
