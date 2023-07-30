@@ -11,8 +11,8 @@ from config import (
 from custom_utils import NormalizeData
 # this will help us create a different color for each class
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
-OUT_DIR = '/users2/local/datasets/h22elhaf/datasets/iSAID/inference_fusion_exp_'+model_version
-# OUT_DIR = '/users2/local/datasets/h22elhaf/datasets/iSAID/inference_final_'+model_version
+OUT_DIR = '/users2/local/datasets/h22elhaf/datasets/iSAID/inference_'+model_version
+
 if os.path.exists(OUT_DIR):
     print('========================')
     print('Directory already exists')
@@ -23,14 +23,10 @@ else:
 # load the best model and trained weights
 model = create_model(num_classes=NUM_CLASSES)
 checkpoint = torch.load('/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_fusion_exp_'+model_version+'/last_model.pth', map_location=DEVICE)
-# checkpoint = torch.load('/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_fusion_'+model_version+'/last_model.pth', map_location=DEVICE)
-# checkpoint = torch.load('/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_final_'+model_version+'/last_model.pth', map_location=DEVICE)
-# checkpoint = torch.load('/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_all_50epochs/best_model.pth', map_location=DEVICE)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(DEVICE).eval()
 # directory where all the images are present
 DIR_TEST = '/users2/local/h22elhaf/Faster_RCNN_for_DOTA/test/images'
-# DIR_TEST = '/users2/local/datasets/h22elhaf/datasets/iSAID/test/images'
 test_images = glob.glob(f"{DIR_TEST}/*.png")
 print(f"Test instances: {len(test_images)}")
 # define the detection threshold...
@@ -43,13 +39,9 @@ total_fps = 0
 
 def metadata_(image_prefix,image_suffix,classe,x,y): #,metadata_(image_prefix,image_suffix,classe,x,y)
     img_link = os.path.join('/users2/local/h22elhaf/Faster_RCNN_for_DOTA/val/Prob_images_exp' ,image_prefix + '_' + classe + '_instance_color_RGB' + image_suffix)
-    # img_link = os.path.join('/users2/local/datasets/h22elhaf/datasets/iSAID/val/Prob_images' ,image_prefix + '_' + classe + '.png')
-    # print(img_link)
     img = cv2.imread(img_link)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.float32)
     img = cv2.resize(img, (x,y),interpolation = cv2.INTER_AREA)
-    # img=NormalizeData(img)
-    # img = 1 - img
     img /= 255.0
     return img
 
