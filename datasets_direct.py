@@ -23,14 +23,11 @@ class CustomDataset(Dataset):
         self.transform_shift=transform_shift
         
         # get all the image paths in sorted order
-        self.image_paths = glob.glob(f"{self.dir_path}/images/*.png")
+        self.image_paths = glob.glob(f"{self.dir_path}/images/*.png") # change this according to your dataset path
         self.all_images = [image_path.split(os.path.sep)[-1] for image_path in self.image_paths]
         self.all_images = sorted(self.all_images)
         self.class_to_idx = class_to_idx
-        # self.all_images = self.all_images[49:]
 
-        # idx_to_class = {i:j for i,j in enumerate(classes)}
-        # class_to_index = {value:key for key, value in idx_to_class.items()}
 
     def read_metadata(self, image_prefix, image_suffix, classe):
 
@@ -38,10 +35,7 @@ class CustomDataset(Dataset):
         image = cv2.imread(metadata_link)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY).astype(np.float32)
         image_resized = cv2.resize(image, (self.width, self.height),interpolation = cv2.INTER_AREA)
-        # image_resized = cv2.resize(image, (self.width, self.height),interpolation = cv2.INTER_NEAREST) #need to try this next
-        # image_resized = cv2.resize(image, (self.width, self.height))
-        # image_resized = NormalizeData(image_resized)
-        # image_resized = 1 - image_resized
+
         image_resized /= 255.0
         image_resized = np.expand_dims(image_resized, axis=0)
         image_resized = np.transpose(image_resized, (2,1,0)).astype(np.float32)
@@ -51,17 +45,15 @@ class CustomDataset(Dataset):
         image_resized = self.transform_shift(image_resized)
         image_resized = image_resized.detach().numpy()
         return image_resized
-	# return image_resized
+
 
     def __getitem__(self, idx):
-        # capture the image name and the full image path 
+
         image_name = self.all_images[idx]
         image_prefix = image_name[:5]
         image_suffix = image_name[5:] 
         image_path = os.path.join(self.dir_path, 'images', image_name)
         # read the image
-        # print(image_name)
-        # print(image_path)
         image = cv2.imread(image_path)
         # convert BGR to RGB color format
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB).astype(np.float32)
@@ -101,20 +93,9 @@ class CustomDataset(Dataset):
         with open(annot_file_path) as f:
             start = 0
             for line in f:
-                # if (start == 0) | (start == 1):
-                #     start +=1
-                # else:
                 splits = line.split(" ")
-                # print(splits)
                 labels.append(class_to_idx[splits[8]])
-                # xmin = min([float(splits[0]), float(splits[2]), float(splits[4]), float(splits[6])])
-                # # xmax = right corner x-coordinates
-                # xmax = max([float(splits[0]), float(splits[2]), float(splits[4]), float(splits[6])])
-                # # ymin = left corner y-coordinates
-                # ymin = min([float(splits[1]), float(splits[3]), float(splits[5]), float(splits[7])])
-                # # ymax = right corner y-coordinates
-                # ymax = max([float(splits[1]), float(splits[3]), float(splits[5]), float(splits[7])])
-
+		    
                 x1 = float(splits[0]) #- 1
                 y1 = float(splits[1]) #- 1
                 x2 = float(splits[2]) #- 1
@@ -124,14 +105,6 @@ class CustomDataset(Dataset):
                 x4 = float(splits[6]) #- 1
                 y4 = float(splits[7]) #- 1
 
-                # x1 = float(splits[0]) - 1
-                # y1 = float(splits[1]) - 1
-                # x2 = float(splits[2]) - 1
-                # y2 = float(splits[3]) - 1
-                # x3 = float(splits[4]) - 1
-                # y3 = float(splits[5]) - 1
-                # x4 = float(splits[6]) - 1
-                # y4 = float(splits[7]) - 1
 
                 xmin = max(min(x1, x2, x3, x4), 0)
                 xmax = max(x1, x2, x3, x4)
@@ -143,77 +116,8 @@ class CustomDataset(Dataset):
                 ymin_final = max((ymin/image_height)*self.height - 1, 0)
                 ymax_final = max((ymax/image_height)*self.height, 0)
 
-                # xmin_final = (xmin/image_width)*self.width
-                # xmax_final = (xmax/image_width)*self.width
-                # ymin_final = (ymin/image_height)*self.height
-                # ymax_final = (ymax/image_height)*self.height
-
-                # xmin_final = max((xmin/image_width)*self.width - 1, 0)
-                # xmax_final = max((xmax/image_width)*self.width -1, 0)
-                # ymin_final = max((ymin/image_height)*self.height - 1, 0)
-                # ymax_final = max((ymax/image_height)*self.height -1, 0)
-
-
                 boxes.append([xmin_final, ymin_final, xmax_final, ymax_final])
-        '''
-        boxes = []
-        labels = []
-        # labels_idx = []
-        # tree = et.parse(annot_file_path)
-        # root = tree.getroot()
-        # try:
-        # root = pd.read_csv(annot_file_path, sep=",", skiprows=2, header=None)
-        root = pd.read_csv(annot_file_path)
-        # lenroot = len(root)
-        # root = root[root.iloc[:,-2].isin(['small-vehicle', 'large-vehicle', 'plane', 'harbor', 'storage-tank'])]
-        # root[8] = np.where((root.iloc[:,8]=='small-vehicle') | (root.iloc[:,8]=='large-vehicle'), 'vehicle', root.iloc[:,8])
-        # except:
-        #     root = pd.DataFrame()
         
-        # get the height and width of the image
-        image_width = image.shape[1]
-        image_height = image.shape[0]
-        
-        # if len(root) == 0:
-        #     raise StopIteration
-        # print(annot_filename)
-        # box coordinates for xml files are extracted and corrected for image size given
-        for index, row in root.iterrows():
-            # map the current object name to `classes` list to get...
-            # ... the label index and append to `labels` list
-            labels.append(self.class_to_idx[row[8]])
-            
-            # xmin = left corner x-coordinates
-            xmin = min([row[0], row[2], row[4], row[6]])
-            # xmax = right corner x-coordinates
-            xmax = max([row[0], row[2], row[4], row[6]])
-            # ymin = left corner y-coordinates
-            ymin = min([row[1], row[3], row[5], row[7]])
-            # ymax = right corner y-coordinates
-            ymax = max([row[1], row[3], row[5], row[7]])
-            
-            # resize the bounding boxes according to the...
-            # ... desired `width`, `height`
-            xmin_final = (xmin/image_width)*self.width
-            xmax_final = (xmax/image_width)*self.width
-            ymin_final = (ymin/image_height)*self.height
-            ymax_final = (ymax/image_height)*self.height
-
-            # xmin_final = abs((xmin/image_width)*self.width - 1)
-            # xmax_final = abs((xmax/image_width)*self.width - 1)
-            # ymin_final = abs((ymin/image_height)*self.height - 1)
-            # ymax_final = abs((ymax/image_height)*self.height - 1)
-
-            # xmin_final = (xmin/image_height)*self.width
-            # xmax_final = (xmax/image_height)*self.width
-            # ymin_final = (ymin/image_width)*self.height
-            # yamx_final = (ymax/image_width)*self.height
-
-            boxes.append([xmin_final, ymin_final, xmax_final, ymax_final])
-
-            # boxes.append([xmin, ymin, xmax, ymax])
-        
-'''
         # bounding box to tensor
         if len(boxes) == 0:
             boxes = torch.zeros((0,4), dtype=torch.float32)
