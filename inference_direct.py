@@ -4,7 +4,7 @@ import torch
 import glob as glob
 import os
 import time
-from model_fusion import create_model
+from model_direct import create_model
 from config import (
     NUM_CLASSES, DEVICE, CLASSES,model_version
 )
