@@ -20,11 +20,6 @@ def create_model(num_classes, n_image_channels = 18):
     model.transform.image_mean = [0.485, 0.456, 0.406, 0.095,0.195,0.092,0.061, 0.145,0.049,0.083,0.169, 0.092, 0.349,0.517,0.016,0.071,0.079,0.107]
     model.transform.image_std = [0.229, 0.224, 0.225, 0.249, 0.322, 0.225, 0.193, 0.29, 0.173, 0.22, 0.318, 0.231, 0.361, 0.344, 0.099,0.201,0.218,0.244] 
     
-
-    # model.transform.image_mean = [0.485, 0.456, 0.406]#, 0.095,0.195,0.092,0.061, 0.145,0.049,0.083,0.169, 0.092, 0.349,0.517,0.016,0.071,0.079,0.107]
-    # model.transform.image_std = [0.229, 0.224, 0.225]
-
-
     # get the number of input features 
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     # define a new head for the detector with required number of classes
