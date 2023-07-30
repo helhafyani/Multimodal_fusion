@@ -16,11 +16,9 @@ import time
 import os
 plt.style.use('ggplot')
 
-# OUT_DIR = '/users/local/h22elhaf/datasets/iSAID/outputs/outputs_subset'
-# OUT_DIR = '/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_all_whole_images'
 
-OUT_DIR = '/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_fusion_exp_'+model_version
-# OUT_DIR = '/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_final_'+model_version
+OUT_DIR = '/users2/local/datasets/h22elhaf/datasets/iSAID/outputs/output_'+model_version
+
 if os.path.exists(OUT_DIR):
     print('========================')
     print('Directory already exists')
@@ -38,42 +36,22 @@ def train(train_data_loader, model):
     prog_bar = tqdm(train_data_loader, total=len(train_data_loader))
     
     for i, data in enumerate(prog_bar):
-        # print(i)
-        # try:
-        # for i, data in enumerate(prog_bar):
         optimizer.zero_grad()
         images, targets = data
-        # print('check 1')
-        # faire un tensor au lieu de list avec
-        #images = torch.stack(images).to(DEVICE)#
         images = list(image.to(DEVICE) for image in images)
-        # print('check 2')
-        # images = images.to(DEVICE)
         targets = [{k: v.to(DEVICE) for k, v in t.items()} for t in targets]
-        # print('check 3')
-        # print(len(images))
-        # print(images[0].shape) #conccat
         loss_dict = model(images, targets)
-        # print('check 4')
         losses = sum(loss for loss in loss_dict.values())
-        # print('check 5')
         loss_value = losses.item()
-        # print('check 6')
         train_loss_list.append(loss_value)
-        # print('check 7')
         train_loss_hist.send(loss_value)
-        # print('check 8')
         losses.backward()
-        # print('check 9')
         optimizer.step()
-        # print('check 10')
         train_itr += 1
-        # print('check 11')
     
         # update the loss value beside the progress bar for each iteration
         prog_bar.set_description(desc=f"Loss: {loss_value:.4f}")
-        # except ValueError:
-        #     print('Invalid value!')
+
       
     return train_loss_list
 
@@ -88,7 +66,6 @@ def validate(valid_data_loader, model):
     
     # print('avant')
     for i, data in enumerate(prog_bar):
-        # print(i)
         images, targets = data
         
         images = list(image.to(DEVICE) for image in images)
